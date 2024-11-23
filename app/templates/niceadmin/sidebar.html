@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    Google Fonts
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
+
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/remixicon/remixicon.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/simple-datatables/style.css') }}" rel="stylesheet">
+
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <img src="assets/img/logo.png" alt="">
+                <span class="d-none d-lg-block"><i class="bi bi-book-fill"></i> ZyPerpus</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div><!-- End Logo -->
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+                <li class="nav-item dropdown pe-3">
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle fs-3 text-primary"></i>
+                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ session['faiz_Username']}}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                        <li class="dropdown-header">
+                            <h6>{{ session['faiz_NamaLengkap'] }}</h6>
+                            <span>Hak Akses {{ session['faiz_Role'] }}</span>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="{{ url_for('logout') }}">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Keluar</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if active_page == 'ncadmin' else '' }}" href="index.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            {% if session['faiz_Role'] == 'admin' %}
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if active_page == 'kelola_akun' else 'collapsed' }}"
+                    href="{{ url_for('admin_kelolaakun') }}">
+                    <i class="bi bi-person-circle"></i> <!-- Ikon untuk Kelola Akun -->
+                    <span>Kelola Akun</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-book"></i> <!-- Ikon untuk Buku -->
+                    <span>Buku</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="{{ url_for('admin_kategoribuku') }}">
+                            <i class="bi bi-circle"></i><span>Kategori Buku</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('admin_buku') }}">
+                            <i class="bi bi-circle"></i><span>Buku</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed {{ 'active' if active_page == 'peminjaman' else '' }}"
+                    href="{{ url_for('admin_peminjaman') }}">
+                    <i class="bi bi-arrow-right-circle"></i> <!-- Ikon untuk Peminjaman -->
+                    <span>Peminjaman</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed {{ 'active' if active_page == 'ulasan' else '' }}"
+                    href="{{ url_for('ncadmin_ulasan') }}">
+                    <i class="bi bi-star"></i> <!-- Ikon untuk Ulasan -->
+                    <span>Ulasan</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#forms-1" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-file-earmark-text"></i> <!-- Ikon untuk Buku -->
+                    <span>Laporan</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="forms-1" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="{{ url_for('laporan_peminjaman') }}">
+                            <i class="bi bi-circle"></i><span>Laporan Peminjaman</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('laporan_buku') }}">
+                            <i class="bi bi-circle"></i><span>Laporan Buku</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% elif session['faiz_Role'] == 'petugas' %}
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-book"></i> <!-- Ikon untuk Buku -->
+                    <span>Buku</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="{{ url_for('admin_kategoribuku') }}">
+                            <i class="bi bi-circle"></i><span>Kategori Buku</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('admin_buku') }}">
+                            <i class="bi bi-circle"></i><span>Buku</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed {{ 'active' if active_page == 'peminjaman' else '' }}"
+                    href="{{ url_for('admin_peminjaman') }}">
+                    <i class="bi bi-arrow-right-circle"></i> <!-- Ikon untuk Peminjaman -->
+                    <span>Peminjaman</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed {{ 'active' if active_page == 'ulasan' else '' }}"
+                    href="{{ url_for('ncadmin_ulasanbuku') }}">
+                    <i class="bi bi-star"></i> <!-- Ikon untuk Ulasan -->
+                    <span>Ulasan</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed {{ 'active' if active_page == 'laporan' else '' }}" href="">
+                    <i class="bi bi-file-earmark-text"></i> <!-- Ikon untuk Laporan -->
+                    <span>Laporan</span>
+                </a>
+            </li>
+            {% endif %}
+            <!-- <li class="nav-heading">Pages</li> -->
+            <!-- <li class="nav-item">
+                <a class="nav-link collapsed" href="users-profile.html">
+                    <i class="bi bi-person"></i>
+                    <span>Logout</span>
+                </a>
+            </li> -->
+        </ul>
+    </aside>
+    {% block content %} {% endblock %}
+    <footer id="footer" class="footer">
+        <div class="copyright">
+            &copy; Copyright <strong><span>faizynrh</span></strong>. All Rights Reserved
+        </div>
+        <div class="credits">
+        </div>
+    </footer>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/chart.js/chart.umd.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/simple-datatables/simple-datatables.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarToggleBtn = document.querySelector('.toggle-sidebar-btn');
+            const body = document.body;
+            const buttons = document.querySelectorAll('.btn-full-width');
+            sidebarToggleBtn.addEventListener('click', () => {
+                if (body.classList.contains('toggle-sidebar')) {
+                    buttons.forEach(btn => {
+                        btn.style.width = '120px';
+                    });
+                } else {
+                    buttons.forEach(btn => {
+                        btn.style.width = '78px';
+                    });
+                }
+            });
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarToggleBtn = document.querySelector('.toggle-sidebar-btn');
+            const body = document.body;
+            const buttons = document.querySelectorAll('.btn-full-width');
+
+            const currentPage = window.location.pathname;
+            if (currentPage.includes('/admin/peminjaman' || currentPage.includes('admin/laporanpeminjaman'))) {
+                body.classList.add('toggle-sidebar');
+                buttons.forEach(btn => {
+                    btn.style.width = '78px';
+                });
+            }
+
+            sidebarToggleBtn.addEventListener('click', () => {
+                if (body.classList.contains('toggle-sidebar')) {
+                    buttons.forEach(btn => {
+                        btn.style.width = '120px';
+                    });
+                } else {
+                    buttons.forEach(btn => {
+                        btn.style.width = '78px';
+                    });
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

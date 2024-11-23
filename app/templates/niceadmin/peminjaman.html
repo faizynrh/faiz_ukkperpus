@@ -1,0 +1,576 @@
+{% extends 'niceadmin/sidebar.html' %} {% block content %}
+
+<style>
+    .btn-full-width {
+        width: 78px;
+    }
+</style>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Daftar Peminjaman</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                <li class="breadcrumb-item active">Daftar Peminjaman</li>
+            </ol>
+        </nav>
+    </div>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <button type="button" class="btn btn-primary mt-3 mb-3" data-bs-toggle="modal"
+                            data-bs-target="#tambahpeminjaman">
+                            + Tambah Peminjaman
+                        </button>
+                        {% with faiz_messages = get_flashed_messages(with_categories=true) %}
+                        {% if faiz_messages %}
+                        {% for faiz_category, faiz_message in faiz_messages %}
+                        <div class="alert alert-{{ faiz_category }} alert-dismissible fade show" role="alert">
+                            {{ faiz_message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Buku</th>
+                                    <th>Tanggal Peminjaman</th>
+                                    <th>Tanggal Pengembalian</th>
+                                    <th>Tanggal Dikembalikan</th>
+                                    <th>Status Peminjaman</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kategoriTableBody">
+                                {% for faiz_peminjamans in faiz_peminjaman %}
+                                <tr>
+                                    <td>{{ faiz_peminjamans[2] }}</td>
+                                    <td>{{ faiz_peminjamans[4] }}</td>
+                                    <td>{{ faiz_peminjamans[5] }}</td>
+                                    <td>{{ faiz_peminjamans[6] }}</td>
+                                    <td>{{ faiz_peminjamans[7] or '-'}}</td>
+                                    <td>{{ faiz_peminjamans[10] }}
+                                        {% if faiz_peminjamans[8] != none %}
+                                        <br>
+                                        <span class="badge bg-danger">{{ faiz_peminjamans[8] }} : Rp. {{
+                                            faiz_peminjamans[9] }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if faiz_peminjamans[10] == 'Tertunda' %}
+                                        <button type="button" class="btn btn-outline-primary waves-effect w-75"
+                                            data-bs-toggle="modal" data-bs-target="#konfirmasipeminjaman"
+                                            data-id="{{ faiz_peminjamans[0] }}" data-uid="{{ faiz_peminjamans[1] }}"
+                                            data-nama="{{ faiz_peminjamans[2] }}"
+                                            data-bukuid="{{ faiz_peminjamans[3] }}"
+                                            data-judul="{{ faiz_peminjamans[4] }}">
+                                            <i class="mdi mdi-check-circle-outline me-1"></i>
+                                            Konfirmasi
+                                        </button>
+                                        {% elif faiz_peminjamans[10] == 'Dipinjam' %}
+                                        <button type="button" class="btn btn-outline-success waves-effect w-75"
+                                            data-bs-toggle="modal" data-bs-target="#konfirmasipengembalian"
+                                            data-id="{{ faiz_peminjamans[0] }}" data-judul="{{ faiz_peminjamans[4] }}"
+                                            data-tanggal-kembali="{{ faiz_peminjamans[6] }}">
+                                            <i class="mdi mdi-check-all me-1"></i>
+                                            Kembalikan
+                                        </button>
+                                        {% elif faiz_peminjamans[10] == 'Selesai' %}
+                                        <button type="button" class="btn btn-success w-75" disabled>
+                                            <i class="mdi mdi-bookmark-check me-1"></i>
+                                            Selesai
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<div class="modal fade" id="konfirmasipeminjaman" tabindex="-1" aria-labelledby="konfirmasiPeminjamanLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="konfirmasiPeminjamanLabel">Konfirmasi Peminjaman</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold text-muted">Judul Buku</td>
+                                <td id="judulBukuPeminjaman" class="text-dark"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Nama Lengkap</td>
+                                <td id="namaPeminjam" class="text-dark"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info mt-3 mb-0" role="alert">
+                    <i class="mdi mdi-information-outline"></i>
+                    Pastikan buku siap diserahkan dan identitas peminjam sudah sesuai.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="peminjamanForm" method="POST" action="">
+                    <input type="hidden" name="bukuid" id="bukuid">
+                    <button type="submit" class="btn btn-primary">Konfirmasi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- <div class="modal fade" id="konfirmasipeminjaman" tabindex="-1" aria-labelledby="konfirmasiPeminjamanLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="konfirmasiPeminjamanLabel">
+                    <i class="mdi mdi-book-open-variant me-2"></i>Konfirmasi Peminjaman Buku
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center">
+                            <div class="bg-light p-4 rounded-circle d-inline-block">
+                                <i class="mdi mdi-book-open-page-variant text-primary" style="font-size: 72px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card border-primary shadow-sm">
+                                <div class="card-body">
+                                    <div class="row mb-3 align-items-center">
+                                        <div class="col-4">
+                                            <h6 class="text-primary mb-0">
+                                                <i class="mdi mdi-book-outline me-2"></i>Judul Buku
+                                            </h6>
+                                        </div>
+                                        <div class="col-8">
+                                            <span id="judulBukuPeminjaman" class="fw-bold text-dark"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3 align-items-center">
+                                        <div class="col-4">
+                                            <h6 class="text-primary mb-0">
+                                                <i class="mdi mdi-account-outline me-2"></i>Nama Peminjam
+                                            </h6>
+                                        </div>
+                                        <div class="col-8">
+                                            <span id="namaPeminjam" class="fw-bold text-dark"></span>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                                        <i class="mdi mdi-information-outline me-2 fs-4"></i>
+                                        <div>
+                                            Pastikan buku siap diserahkan kepada peminjam dan identitas sudah sesuai.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="mdi mdi-close me-1"></i>Batal
+                </button>
+                <form id="peminjamanForm" method="POST" action="">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="mdi mdi-check me-1"></i>Konfirmasi Peminjaman
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
+<!-- <div class="modal fade" id="konfirmasipeminjaman" tabindex="-1" aria-labelledby="konfirmasiPeminjamanLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="konfirmasiPeminjamanLabel">Konfirmasi Peminjaman</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <div class="p-3 bg-light rounded-circle d-inline-block mb-3">
+                        <i class="mdi mdi-book-open-variant text-primary" style="font-size: 48px;"></i>
+                    </div>
+                    <h4 id="judulBukuPeminjaman" class="mb-2"></h4>
+                    <p id="namaPeminjam" class="text-muted"></p>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <small class="text-uppercase text-muted d-block mb-2">Peminjam</small>
+                            <strong id="detailNamaPeminjam" class="d-block"></strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <small class="text-uppercase text-muted d-block mb-2">Status</small>
+                            <span class="badge bg-primary">Siap Dipinjam</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3 mb-0" role="alert">
+                    <i class="mdi mdi-information-outline me-2"></i>
+                    Pastikan data buku dan peminjam sudah sesuai
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="peminjamanForm" method="POST" action="">
+                    <button type="submit" class="btn btn-primary">Konfirmasi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<div class="modal fade" id="konfirmasipengembalian" tabindex="-1" aria-labelledby="pengembalianModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pengembalianModalLabel">Konfirmasi Pengembalian</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="pengembalianForm" method="POST" action="">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <p class="text-center">
+                                <span class="text-dark">Konfirmasi Pengembalian Buku <strong
+                                        id="judulBukuPengembalian"></strong></span>
+                                <br>
+                                <span class="text-danger fw-bold">
+                                    <i class="bi bi-shield-exclamation me-2"></i>
+                                    Perhatian: Pastikan buku dalam kondisi baik!
+                                </span>
+                                <br>
+                                <small class="text-muted">
+                                    Jika buku rusak atau hilang, WAJIB mengisi denda dengan mengklik "Tambah Denda"
+                                </small>
+                            </p>
+
+                            <div id="keterlambatanInfo" class="alert" role="alert">
+                            </div>
+
+                            <div id="dendaSection" class="mt-3" style="display:none;">
+                                <h6>Denda Buku</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="jenisDenda" class="form-label">Jenis Denda</label>
+                                        <select class="form-select" id="jenisDenda" name="jenisDenda">
+                                            <option value="">Pilih Jenis Denda</option>
+                                            <option value="Terlambat">Terlambat</option>
+                                            <option value="Rusak">Rusak</option>
+                                            <option value="Hilang">Hilang</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="nilaiDenda" class="form-label">Nilai Denda</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="number" class="form-control" id="nilaiDenda" name="nilaiDenda"
+                                                placeholder="Masukkan Nilai Denda">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tombol Tambah Denda -->
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <button type="button" id="tambahDendaBtn" class="btn btn-warning"
+                                            style="display:none;">
+                                            <i class="bi bi-plus"></i> Tambah Denda Lanjutan
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Kontainer untuk denda tambahan -->
+                                <div id="tambahDendaContainer" class="mt-3">
+                                    <!-- Denda tambahan akan ditambahkan di sini secara dinamis -->
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button type="button" id="tambahDendaManualBtn" class="btn btn-outline-primary"
+                                    style="display:none;">
+                                    <i class="bi bi-plus-circle me-2"></i>Tambah Denda
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">Kembalikan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="tambahpeminjaman" tabindex="-1" aria-labelledby="tambahpeminjaman" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tambahpeminjamanLabel">Tambah Peminjaman</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="peminjamanForm" method="post" action="{{ url_for('tambah_peminjaman') }}">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nama_peminjam" class="form-label">Nama Peminjam</label>
+                            <select class="form-control" id="nama_peminjam" name="nama_peminjam" required>
+                                <option value="" disabled selected>Pilih Peminjam</option>
+                                {% for faiz_peminjams in faiz_peminjam %}
+                                <option value="{{ faiz_peminjams[0] }}" data-nama-lengkap="{{ faiz_peminjams[1] }}"
+                                    data-email="{{ faiz_peminjams[2] }}" data-alamat="{{ faiz_peminjams[3] }}">
+                                    {{ faiz_peminjams[1] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="buku" class="form-label">Buku</label>
+                            <select class="form-control" id="buku" name="buku" required>
+                                <option value="" disabled selected>Pilih Buku</option>
+                                {% for faiz_bukus in faiz_buku %}
+                                <option value="{{ faiz_bukus[0] }}" data-judul="{{ faiz_bukus[1] }}"
+                                    data-penulis="{{ faiz_bukus[2] }}" data-stok="{{ faiz_bukus[5] }}">
+                                    {{ faiz_bukus[1] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="tanggal_peminjaman" class="form-label">Tanggal Peminjaman</label>
+                            <input type="date" class="form-control" id="tanggal_peminjaman" name="tanggal_peminjaman"
+                                readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="tanggal_pengembalian" class="form-label">Tanggal Pengembalian</label>
+                            <input type="date" class="form-control" id="tanggal_pengembalian"
+                                name="tanggal_pengembalian" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="submit-peminjaman">Simpan
+                        Peminjaman</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const faiz_today = new Date().toISOString().split('T')[0];
+        document.getElementById('tanggal_peminjaman').value = faiz_today;
+
+        const faiz_returnDate = new Date();
+        faiz_returnDate.setDate(faiz_returnDate.getDate() + 7);
+        document.getElementById('tanggal_pengembalian').value = faiz_returnDate.toISOString().split('T')[0];
+    });
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const faiz_dataTable = new simpleDatatables.DataTable(".datatable", {
+            searchable: true,
+            sortable: true,
+            perPage: 10,
+            perPageSelect: [10, 25, 50, 100],
+            labels: {
+                placeholder: "Cari...",
+            }
+        });
+    });
+    const faiz_pengembalianModal = document.getElementById('konfirmasipengembalian');
+    faiz_pengembalianModal.addEventListener('show.bs.modal', function (event) {
+        const faiz_button = event.relatedTarget;
+        const faiz_peminjamanId = faiz_button.getAttribute('data-id');
+        const faiz_judulBuku = faiz_button.getAttribute('data-judul');
+        const faiz_tanggalKembali = faiz_button.getAttribute('data-tanggal-kembali');
+
+        const faiz_modalForm = document.getElementById('pengembalianForm');
+        faiz_modalForm.action = `/pengembalian/${faiz_peminjamanId}`;
+
+        document.getElementById('judulBukuPengembalian').textContent = faiz_judulBuku;
+
+        // Cek keterlambatan
+        const today = new Date();
+        const tanggalKembali = new Date(faiz_tanggalKembali);
+
+        // Reset waktu ke tengah hari untuk perbandingan yang akurat
+        today.setHours(12, 0, 0, 0);
+        tanggalKembali.setHours(12, 0, 0, 0);
+
+        const keterlambatanInfo = document.getElementById('keterlambatanInfo');
+        const dendaSection = document.getElementById('dendaSection');
+        const jenisDendaSelect = document.getElementById('jenisDenda');
+        const nilaiDendaInput = document.getElementById('nilaiDenda');
+        const tambahDendaBtn = document.getElementById('tambahDendaBtn');
+        const tambahDendaContainer = document.getElementById('tambahDendaContainer');
+        const tambahDendaManualBtn = document.getElementById('tambahDendaManualBtn');
+
+        // Reset semua elemen
+        jenisDendaSelect.value = '';
+        nilaiDendaInput.value = '';
+        tambahDendaContainer.innerHTML = '';
+        tambahDendaBtn.style.display = 'none';
+        tambahDendaManualBtn.style.display = 'none';
+
+        // Hapus semua event listener yang ada
+        const newTambahDendaManualBtn = tambahDendaManualBtn.cloneNode(true);
+        tambahDendaManualBtn.parentNode.replaceChild(newTambahDendaManualBtn, tambahDendaManualBtn);
+
+        const newTambahDendaBtn = tambahDendaBtn.cloneNode(true);
+        tambahDendaBtn.parentNode.replaceChild(newTambahDendaBtn, tambahDendaBtn);
+
+        console.log('Today:', today); // Debug log
+        console.log('Tanggal Kembali:', tanggalKembali); // Debug log
+        console.log('Terlambat:', today > tanggalKembali); // Debug log
+
+        if (today > tanggalKembali) {
+            // Kode untuk kondisi terlambat
+            const selisihHari = Math.ceil((today - tanggalKembali) / (1000 * 60 * 60 * 24));
+
+            keterlambatanInfo.innerHTML = `
+            <strong>Perhatian:</strong> Buku terlambat ${selisihHari} hari.
+        `;
+            keterlambatanInfo.classList.remove('alert-success');
+            keterlambatanInfo.classList.add('alert-warning');
+
+            // Otomatis set jenis denda dan hitung nilai denda
+            jenisDendaSelect.value = 'Terlambat';
+            const dendaPerHari = 5000;
+            const totalDenda = selisihHari * dendaPerHari;
+
+            nilaiDendaInput.value = totalDenda;
+
+            dendaSection.style.display = 'block';
+            newTambahDendaBtn.style.display = 'block';
+        } else {
+            // Tepat waktu
+            keterlambatanInfo.innerHTML = 'Buku dikembalikan tepat waktu.';
+            keterlambatanInfo.classList.remove('alert-warning');
+            keterlambatanInfo.classList.add('alert-success');
+
+            dendaSection.style.display = 'none';
+            newTambahDendaManualBtn.style.display = 'block';
+        }
+
+        // Event listener untuk tombol tambah denda manual
+        newTambahDendaManualBtn.addEventListener('click', function () {
+            dendaSection.style.display = 'block';
+            this.style.display = 'none';
+        });
+
+        // Variabel untuk membatasi penambahan denda
+        let dendaTambahanDitambahkan = false;
+
+        // Event listener untuk tombol tambah denda
+        newTambahDendaBtn.addEventListener('click', function () {
+            // Cegah menambahkan lebih dari satu denda tambahan
+            if (dendaTambahanDitambahkan) {
+                alert('Anda hanya dapat menambahkan denda tambahan sekali.');
+                return;
+            }
+
+            // Buat elemen baru untuk input denda tambahan
+            const newDendaRow = document.createElement('div');
+            newDendaRow.classList.add('row', 'mt-2', 'denda-tambahan');
+            newDendaRow.innerHTML = `
+        <div class="col-md-5">
+            <label class="form-label">Jenis Denda Tambahan</label>
+            <select class="form-select" name="jenisDendaTambahan" required>
+                <option value="">Pilih Jenis Denda</option>
+                <option value="Rusak">Rusak</option>
+                <option value="Hilang">Hilang</option>
+                <option value="Lainnya">Lainnya</option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">Nominal Denda</label>
+            <div class="input-group">
+                <span class="input-group-text">Rp</span>
+                <input type="number" class="form-control" name="nilaiDendaTambahan"
+                    placeholder="Masukkan Nominal Denda" required>
+            </div>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="button" class="btn btn-danger btn-hapus-denda w-100">
+                <i class="bi bi-trash"></i> Hapus
+            </button>
+        </div>
+    `;
+
+            // Tambahkan ke kontainer
+            tambahDendaContainer.appendChild(newDendaRow);
+
+            // Nonaktifkan tombol tambah denda
+            dendaTambahanDitambahkan = true;
+            newTambahDendaBtn.style.display = 'none';
+
+            // Tambahkan event listener untuk tombol hapus
+            newDendaRow.querySelector('.btn-hapus-denda').addEventListener('click', function () {
+                newDendaRow.remove();
+                dendaTambahanDitambahkan = false;
+                newTambahDendaBtn.style.display = 'block';
+            });
+        });
+    });
+    const faiz_peminjamanModal = document.getElementById('konfirmasipeminjaman');
+    faiz_peminjamanModal.addEventListener('show.bs.modal', function (event) {
+        const faiz_button = event.relatedTarget;
+        const faiz_peminjamanId = faiz_button.getAttribute('data-id');
+        const faiz_judulBuku = faiz_button.getAttribute('data-judul');
+        const faiz_datanama = faiz_button.getAttribute('data-nama');
+        const faiz_databukuid = faiz_button.getAttribute('data-bukuid');
+
+        const faiz_modalForm = document.getElementById('peminjamanForm');
+        faiz_modalForm.action = `/peminjaman/${faiz_peminjamanId}`;
+
+        // Set judul buku dan nama peminjam
+        document.getElementById('judulBukuPeminjaman').textContent = faiz_judulBuku;
+        document.getElementById('namaPeminjam').textContent = faiz_datanama;
+        document.getElementById('bukuid').value = faiz_databukuid;
+
+        // Tambahkan console.log untuk debugging
+        console.log('PeminjamanID:', faiz_peminjamanId);
+        console.log('Judul Buku:', faiz_judulBuku);
+        console.log('Nama Peminjam:', faiz_datanama);
+        console.log('Buku ID:', faiz_databukuid);
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'sidebar.html' %} {% block content %}
+<!-- Header -->
+<header id="home">
+    <h1>Selamat Datang di Perpustakaan Digital</h1>
+    <p>Temukan dunia baru melalui membaca.</p>
+</header>
+
+<!-- Slideshow Kutipan -->
+<div class="slideshow-container">
+    <div class="mySlides fade">
+        <q>Membaca adalah jendela dunia.</q>
+        <p>- Anonim</p>
+    </div>
+
+    <div class="mySlides fade">
+        <q>Buku adalah teman terbaik.</q>
+        <p>- Anonim</p>
+    </div>
+
+    <div class="mySlides fade">
+        <q>Membaca adalah kunci untuk membuka pengetahuan.</q>
+        <p>- Anonim</p>
+    </div>
+
+    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+</div>
+
+<div class="content">
+    <h2>Fitur Utama</h2>
+    <div class="features">
+        <div class="feature">
+            <h3>Fitur 1</h3>
+            <p>Temukan berbagai buku dari berbagai genre.</p>
+        </div>
+        <div class="feature">
+            <h3>Fitur 2</h3>
+            <p>Ikuti perkembangan terbaru dalam dunia literasi.</p>
+        </div>
+        <div class="feature">
+            <h3>Fitur 3</h3>
+            <p>Login untuk menyimpan buku favorit Anda.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Kelebihan E-Perpus -->
+<div class="content kelebihan">
+    <h2>Kelebihan E-Perpustakaan</h2>
+    <div class="kelebihan-container">
+        <div class="kelebihan-card" data-aos="fade-up" data-aos-delay="100">
+            <i class="fas fa-mobile-alt"></i>
+            <h3>Akses Dimana Saja</h3>
+            <p>Baca buku kapan pun dan di mana pun melalui perangkat anda.</p>
+        </div>
+        <div class="kelebihan-card" data-aos="fade-up" data-aos-delay="200">
+            <i class="fas fa-cloud-download-alt"></i>
+            <h3>Download Mudah</h3>
+            <p>Download buku favorit anda dengan sekali klik.</p>
+        </div>
+        <div class="kelebihan-card" data-aos="fade-up" data-aos-delay="300">
+            <i class="fas fa-book-reader"></i>
+            <h3>Koleksi Lengkap</h3>
+            <p>Ribuan buku dari berbagai genre tersedia.</p>
+        </div>
+        <div class="kelebihan-card" data-aos="fade-up" data-aos-delay="400">
+            <i class="fas fa-search"></i>
+            <h3>Pencarian Cepat</h3>
+            <p>Temukan buku yang anda inginkan dalam hitungan detik.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Manfaat E-Perpus -->
+<div class="content manfaat">
+    <h2>Manfaat E-Perpustakaan</h2>
+    <div class="manfaat-container">
+        <div class="manfaat-card" data-aos="zoom-in" data-aos-delay="100">
+            <div class="manfaat-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <div class="manfaat-content">
+                <h3>Pengembangan Pengetahuan</h3>
+                <p>Perluas wawasan dan pengetahuan dari berbagai bidang.</p>
+            </div>
+        </div>
+        <div class="manfaat-card" data-aos="zoom-in" data-aos-delay="200">
+            <div class="manfaat-icon">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div class="manfaat-content">
+                <h3>Literasi Digital</h3>
+                <p>Mendorong budaya membaca di era digital.</p>
+            </div>
+        </div>
+        <div class="manfaat-card" data-aos="zoom-in" data-aos-delay="300">
+            <div class="manfaat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="manfaat-content">
+                <h3>Hemat Waktu</h3>
+                <p>Tidak perlu ke perpustakaan fisik untuk membaca.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kontak Kami -->
+<div class="content kontak" id="kontak">
+    <h2>Hubungi Kami</h2>
+    <div class="kontak-container">
+        <div class="kontak-info" data-aos="fade-right">
+            <h3>Informasi Kontak</h3>
+            <p><i class="fas fa-map-marker-alt"></i> Jalan Perpustakaan Digital No. 123</p>
+            <p><i class="fas fa-envelope"></i> support@eperpus.com</p>
+            <p><i class="fas fa-phone"></i> +62 812-3456-7890</p>
+        </div>
+        <div class="kontak-form" data-aos="fade-left">
+            <form id="contact-form">
+                <div class="form-group">
+                    <input type="text" placeholder="Nama Lengkap" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <textarea placeholder="Pesan Anda" required></textarea>
+                </div>
+                <button type="submit" class="btn-kirim">Kirim Pesan</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

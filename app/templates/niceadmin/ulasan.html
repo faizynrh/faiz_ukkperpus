@@ -1,0 +1,78 @@
+{% extends 'niceadmin/sidebar.html' %} {% block content %}
+
+<style>
+    .btn-full-width {
+        width: 78px;
+    }
+</style>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Ulasan Buku</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                <li class="breadcrumb-item active">Ulasan Buku</li>
+            </ol>
+        </nav>
+    </div>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Judul</th>
+                                    <th>Penulis</th>
+                                    <th>Penerbit</th>
+                                    <th>Tahun Terbit</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kategoriTableBody">
+                                {% for buku in buku %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ buku[1] }}</td>
+                                    <td>{{ buku[2] }}</td>
+                                    <td>{{ buku[3] }}</td>
+                                    <td>{{ buku[4] }}</td>
+                                    <td>
+                                        <a href="{{ url_for('ncadmin_ulasanbuku', buku_id=buku[0]) }}"
+                                            class="btn btn-primary w-75">Lihat Ulasan</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const buttons = document.querySelectorAll('.btn-lihat-ulasan');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function (e) {
+                const bukuId = this.getAttribute('data-buku-id');
+
+                // Contoh animasi atau konfirmasi
+                Swal.fire({
+                    title: 'Membuka Ulasan Buku',
+                    text: 'Sedang mengambil ulasan untuk buku...',
+                    icon: 'info',
+                    showConfirmButton: false,
+                    timer: 1000
+                }).then(() => {
+                    window.location.href = `/ncadmin/ulasanbuku/${bukuId}`;
+                });
+            });
+        });
+    });
+</script>

@@ -1,0 +1,81 @@
+{% extends 'niceadmin/sidebar.html' %}
+{% block content %}
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Laporan Peminjaman</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                <li class="breadcrumb-item active">Laporan Peminjaman</li>
+            </ol>
+        </nav>
+    </div>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mt-2 mb-2">
+                            <a href="{{ url_for('print_laporan_peminjaman') }}" target="_blank"
+                                class="btn btn-secondary ms-auto">
+                                <i class="bi bi-file-earmark-pdf me-2 "></i>Cetak Laporan
+                            </a>
+                        </div>
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Lengkap</th>
+                                    <th>Judul Buku</th>
+                                    <th>Tanggal Peminjaman</th>
+                                    <th>Tanggal Pengembalian</th>
+                                    <th>Tanggal Dikembalikan</th>
+                                    <th>Status Peminjaman</th>
+                                    <th>Denda</th>
+                                    <th>Nilai Denda</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for peminjaman in detail_peminjaman %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ peminjaman[0] }}</td>
+                                    <td>{{ peminjaman[1] }}</td>
+                                    <td>{{ peminjaman[2] }}</td>
+                                    <td>{{ peminjaman[3] }}</td>
+                                    <td>{{ peminjaman[4] }}</td>
+                                    <td>
+                                        {% if peminjaman[5] == 'Dipinjam' %}
+                                        <span class="badge bg-warning">Dipinjam</span>
+                                        {% elif peminjaman[5] == 'Selesai' %}
+                                        <span class="badge bg-success">Selesai</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ peminjaman[5] }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ peminjaman[6] }}</td>
+                                    <td>{{ peminjaman[7] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const faiz_dataTable = new simpleDatatables.DataTable(".datatable", {
+            searchable: true,
+            sortable: true,
+            perPage: 10,
+            perPageSelect: [10, 25, 50, 100],
+            labels: {
+                placeholder: "Cari...",
+            }
+        });
+    });
+</script>
+{% endblock %}

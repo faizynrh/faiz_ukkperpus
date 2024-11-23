@@ -1,0 +1,156 @@
+<main class="report-page">
+    <div class="report-container">
+        <header class="report-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1>Perpustakaan Digital</h1>
+                </div>
+                <div class="report-info">
+                    <h2>Laporan Buku</h2>
+                    <p>Periode: {{ now().strftime('%d %B %Y') }}</p>
+                </div>
+            </div>
+            <hr>
+        </header>
+
+        <div class="table-container">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Judul Buku</th>
+                        <th>Penulis</th>
+                        <th>Penerbit</th>
+                        <th>Tahun Terbit</th>
+                        <th>Kategori</th>
+                        <th>Hilang</th>
+                        <th>Rusak</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for buku in laporan_buku %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ buku[1] }}</td>
+                        <td>{{ buku[2] }}</td>
+                        <td>{{ buku[3] }}</td>
+                        <td>{{ buku[4] }}</td>
+                        <td>{{ buku[5] }}</td>
+                        <td>{{ buku[7] }}</td>
+                        <td>{{ buku[8] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+    }
+
+    .report-page {
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .report-container {
+        width: 100%;
+        max-width: 1200px;
+        border: 1px solid #000;
+    }
+
+    .report-header {
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid #000;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo-section h1 {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .report-info h2 {
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+
+    .table-container {
+        padding: 20px;
+    }
+
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .report-table th,
+    .report-table td {
+        border: 1px solid #000;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .report-table th {
+        font-weight: bold;
+        background-color: #f0f0f0;
+    }
+
+    .report-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .report-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .print-button {
+        border: 1px solid #000;
+        background: none;
+        padding: 8px 15px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    @media print {
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .report-container {
+            border: none;
+        }
+
+        .print-button {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    window.onload = function () {
+        window.print();
+    }
+</script>

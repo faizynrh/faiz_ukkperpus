@@ -1,0 +1,71 @@
+{% extends 'niceadmin/sidebar.html' %}
+{% block content %}
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Laporan Peminjaman</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                <li class="breadcrumb-item active">Laporan Peminjaman</li>
+            </ol>
+        </nav>
+    </div>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mt-2 mb-2">
+                            <a href="{{ url_for('print_laporan_buku') }}" target="_blank"
+                                class="btn btn-secondary ms-auto">
+                                <i class="bi bi-file-earmark-pdf me-2 "></i>Cetak Laporan
+                            </a>
+                        </div>
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Judul Buku</th>
+                                    <th>Penulis</th>
+                                    <th>Penerbit</th>
+                                    <th>Tahun Terbit</th>
+                                    <th>Kategori</th>
+                                    <th>Hilang</th>
+                                    <th>Rusak</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for buku in laporan_buku %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ buku[1] }}</td>
+                                    <td>{{ buku[2] }}</td>
+                                    <td>{{ buku[3] }}</td>
+                                    <td>{{ buku[4] }}</td>
+                                    <td>{{ buku[5] }}</td>
+                                    <td>{{ buku[7] }}</td>
+                                    <td>{{ buku[8] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const faiz_dataTable = new simpleDatatables.DataTable(".datatable", {
+            searchable: true,
+            sortable: true,
+            perPage: 10,
+            perPageSelect: [10, 25, 50, 100],
+            labels: {
+                placeholder: "Cari...",
+            }
+        });
+    });
+</script>
+{% endblock %}

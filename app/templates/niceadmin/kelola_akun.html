@@ -1,0 +1,368 @@
+{% extends 'niceadmin/sidebar.html' %} {% block content %}
+
+<style>
+    .btn-full-width {
+        width: 78px;
+    }
+</style>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Kelola Akun</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                <li class="breadcrumb-item active">Kelola Akun</li>
+            </ol>
+        </nav>
+    </div>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <button type="button" class="btn btn-primary mb-3 mt-3" data-bs-toggle="modal"
+                            data-bs-target="#inputakun">
+                            + Tambah Akun
+                        </button>
+                        {% with faiz_messages = get_flashed_messages(with_categories=true) %}
+                        {% if faiz_messages %}
+                        {% for faiz_category, faiz_message in faiz_messages %}
+                        <div class="alert alert-{{ faiz_category }} alert-dismissible fade show" role="alert">
+                            {{ faiz_message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Email</th>
+                                    <th>Nama Lengkap</th>
+                                    <th>Alamat</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for faiz_users in faiz_user %}
+                                <tr
+                                    class="{% if faiz_users[7] == 'terverifikasi' %}status-terverifikasi{% elif faiz_users[7] == 'ditolak' %}status-ditolak{% elif faiz_users[7] == 'pending' %}status-pending{% endif %}">
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ faiz_users[1] }}</td>
+                                    <td>{{ faiz_users[3] }}</td>
+                                    <td>{{ faiz_users[4] }}</td>
+                                    <td>{{ faiz_users[5] }}</td>
+                                    <td>{{ faiz_users[6] }}</td>
+                                    <td>
+                                        {% if faiz_users[7] == 'Pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                        {% elif faiz_users[7] == 'Terverifikasi' %}
+                                        <span class="badge bg-success">Terverifikasi</span>
+                                        {% elif faiz_users[7] == 'Ditolak' %}
+                                        <span class="badge bg-danger">Ditolak</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if faiz_users[7] == 'Pending' %}
+                                        <button type="button" class="btn btn-danger btn-full-width mb-1"
+                                            data-bs-toggle="modal" data-bs-target="#tolakModal"
+                                            data-id="{{ faiz_users[0] }}" data-username="{{ faiz_users[1] }}">
+                                            Tolak
+                                        </button>
+                                        <button type="button" class="btn btn-success btn-full-width"
+                                            data-bs-toggle="modal" data-bs-target="#verifikasiModal"
+                                            data-id="{{ faiz_users[0] }}" data-username="{{ faiz_users[1] }}">
+                                            Verifikasi
+                                        </button>
+                                        {% else %}
+                                        <button type="button" class="btn btn-warning btn-full-width mb-1"
+                                            data-bs-toggle="modal" data-bs-target="#editakun"
+                                            data-id="{{ faiz_users[0] }}" data-username="{{ faiz_users[1] }}"
+                                            data-password="{{ faiz_users[2] }}" data-role="{{ faiz_users[3] }}"
+                                            data-email="{{ faiz_users[4] }}" data-nama-lengkap="{{ faiz_users[5] }}"
+                                            data-alamat="{{ faiz_users[6] }}">
+                                            Ubah
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-full-width"
+                                            data-bs-toggle="modal" data-bs-target="#hapusakun"
+                                            data-bs-id="{{ faiz_users[0] }}" data-bs-nama-lengkap="{{ faiz_users[5] }}">
+                                            Hapus
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<div class="modal fade" id="inputakun" tabindex="-1" aria-labelledby="inputakun" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inputakunLabel">Tambah Akun</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="akunForm" method="post" action="{{ url_for('tambah_akun') }}"
+                onsubmit="return validatePasswords()">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Hak Akses</label>
+                        <select class="form-control" id="role" name="role" required>
+                            <option value="" disabled selected>Pilih Hak Akses</option>
+                            <option value="admin">Admin</option>
+                            <option value="peminjam">Peminjam</option>
+                            <option value="petugas">Petugas</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="alamat" class="form-label">Alamat</label>
+                        <input type="text" class="form-control" id="alamat" name="alamat" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required
+                            minlength="8">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Konfirmasi Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required
+                            minlength="8">
+                        <div id="passwordError" class="text-danger mt-2" style="display: none;">Password dan Konfirmasi
+                            Password Anda Tidak Cocok</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editakun" tabindex="-1" aria-labelledby="editakun" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Akun</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editakunForm" method="post" action="">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-control" id="edit_nama_lengkap" name="nama_lengkap" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="edit_username" name="username" required
+                            minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit_email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Hak Akses</label>
+                        <select class="form-control" id="edit_role" name="role" required>
+                            <option value="" disabled selected>Pilih Hak Akses</option>
+                            <option value="admin">Admin</option>
+                            <option value="peminjam">Peminjam</option>
+                            <option value="petugas">Petugas</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="alamat" class="form-label">Alamat</label>
+                        <input type="text" class="form-control" id="edit_alamat" name="alamat" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="hapusakun" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Konfirmasi Penghapusan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menghapus akun <strong id="faiz_namaLengkapHapus"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="hapusForm" action="" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="verifikasiModal" tabindex="-1" aria-labelledby="verifikasiModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="verifikasiModalLabel">Konfirmasi
+                    Verifikasi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin memverifikasi akun <strong id="verifikasiUsername"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="verifikasiForm" method="POST" action="">
+                    <button type="submit" class="btn btn-success">Verifikasi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="tolakModal" tabindex="-1" aria-labelledby="tolakModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tolakModalLabel">Konfirmasi Penolakan
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menolak dan menghapus akun <strong id="tolakUsername"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="tolakForm" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">Tolak</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const faiz_hapusAkunModal = document.getElementById('hapusakun');
+    faiz_hapusAkunModal.addEventListener('show.bs.modal', function (event) {
+        const faiz_button = event.relatedTarget;
+        const faiz_akunId = faiz_button.getAttribute('data-bs-id');
+        const faiz_namaLengkap = faiz_button.getAttribute('data-bs-nama-lengkap');
+        const faiz_form = document.getElementById('hapusForm');
+
+        document.getElementById('faiz_namaLengkapHapus').textContent = faiz_namaLengkap;
+
+        faiz_form.action = '/hapus_akun/' + faiz_akunId;
+    });
+
+    const faiz_editModal = document.getElementById('editakun');
+    faiz_editModal.addEventListener('show.bs.modal', function (event) {
+        const faiz_button = event.relatedTarget;
+
+        const faiz_akunId = faiz_button.getAttribute('data-id');
+        const faiz_username = faiz_button.getAttribute('data-username');
+        const faiz_email = faiz_button.getAttribute('data-email');
+        const faiz_role = faiz_button.getAttribute('data-role');
+        const faiz_namaLengkap = faiz_button.getAttribute('data-nama-lengkap');
+        const faiz_alamat = faiz_button.getAttribute('data-alamat');
+        const faiz_password = faiz_button.getAttribute('data-password');
+
+        const faiz_modalForm = faiz_editModal.querySelector('form');
+        faiz_modalForm.action = `/edit_akun/${faiz_akunId}`;
+        faiz_modalForm.querySelector('#edit_username').value = faiz_username;
+        faiz_modalForm.querySelector('#edit_email').value = faiz_email;
+        faiz_modalForm.querySelector('#edit_role').value = faiz_role;
+        faiz_modalForm.querySelector('#edit_nama_lengkap').value = faiz_namaLengkap;
+        faiz_modalForm.querySelector('#edit_alamat').value = faiz_alamat;
+        faiz_modalForm.querySelector('#edit_password').value = faiz_password;
+        faiz_modalForm.querySelector('#edit_confirmPassword').value = faiz_password;
+    });
+
+    function faiz_validatePasswords() {
+        const faiz_password = document.getElementById('password').value;
+        const faiz_confirmPassword = document.getElementById('confirmPassword').value;
+        const faiz_passwordError = document.getElementById('passwordError');
+
+        if (faiz_password !== faiz_confirmPassword) {
+            faiz_passwordError.style.display = 'block';
+            return false;
+        } else {
+            faiz_passwordError.style.display = 'none';
+            return true;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const faiz_searchForm = document.getElementById('searchForm');
+        const faiz_resetButton = document.getElementById('resetSearch');
+
+        faiz_searchForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const faiz_query = document.getElementById('searchInput').value;
+            window.location.href = `/kelola_akun?query=${encodeURIComponent(faiz_query)}`;
+        });
+
+        faiz_resetButton.addEventListener('click', function () {
+            document.getElementById('searchInput').value = '';
+            window.location.href = '/kelola_akun';
+        });
+    });
+
+    const faiz_verifikasiModal = document.getElementById('verifikasiModal');
+    faiz_verifikasiModal.addEventListener('show.bs.modal', function (event) {
+        const faiz_button = event.relatedTarget;
+        const faiz_akunId = faiz_button.getAttribute('data-id');
+        const faiz_username = faiz_button.getAttribute('data-username');
+
+        const faiz_modalForm = document.getElementById('verifikasiForm');
+        faiz_modalForm.action = `/verifikasi_akun/${faiz_akunId}`;
+
+        document.getElementById('verifikasiUsername').textContent = faiz_username;
+    });
+
+    const faiz_tolakModal = document.getElementById('tolakModal');
+    faiz_tolakModal.addEventListener('show.bs.modal', function (event) {
+        const faiz_button = event.relatedTarget;
+        const faiz_akunId = faiz_button.getAttribute('data-id');
+        const faiz_username = faiz_button.getAttribute('data-username');
+
+        const faiz_modalForm = document.getElementById('tolakForm');
+        faiz_modalForm.action = `/tolak_akun/${faiz_akunId}`;
+
+        document.getElementById('tolakUsername').textContent = faiz_username;
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const faiz_dataTable = new simpleDatatables.DataTable(".datatable", {
+            searchable: true,
+            sortable: true,
+            perPage: 10,
+            perPageSelect: [10, 25, 50, 100],
+            labels: {
+                placeholder: "Cari...",
+            }
+        });
+    });
+</script>
+{% endblock %}

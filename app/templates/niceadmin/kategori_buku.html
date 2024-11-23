@@ -1,0 +1,172 @@
+{% extends 'niceadmin/sidebar.html' %} {% block content %}
+
+<style>
+    .btn-full-width {
+        width: 78px;
+    }
+</style>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Kategori Buku</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                <li class="breadcrumb-item active">Kategori Buku</li>
+            </ol>
+        </nav>
+    </div>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <button type="button" class="btn btn-primary mt-3 mb-3" data-bs-toggle="modal"
+                            data-bs-target="#inputkategori">
+                            + Tambah Kategori
+                        </button>
+                        {% with faiz_messages = get_flashed_messages(with_categories=true) %}
+                        {% if faiz_messages %}
+                        {% for faiz_category, faiz_message in faiz_messages %}
+                        <div class="alert alert-{{ faiz_category }} alert-dismissible fade show" role="alert">
+                            {{ faiz_message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Kategori</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kategoriTableBody">
+                                {% for faiz_kategoris in faiz_kategori %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ faiz_kategoris[1] }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                            data-bs-target="#editkategori" data-bs-id="{{ faiz_kategoris[0] }}"
+                                            data-bs-nama="{{ faiz_kategoris[1] }}">
+                                            Edit
+                                        </button>
+                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                            data-bs-target="#hapuskategori" data-bs-id="{{ faiz_kategoris[0] }}"
+                                            data-bs-nama="{{ faiz_kategoris[1] }}">
+                                            Hapus
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<div class="modal fade" id="inputkategori" tabindex="-1" aria-labelledby="inputkategori" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inputKategoriLabel">Tambah Kategori</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="kategoriForm" method="post" action="{{ url_for('tambah_kategori') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nama_kategori" class="form-label">Nama Kategori</label>
+                        <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="hapuskategori" tabindex="-1" aria-labelledby="hapusKategoriLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hapusKategoriLabel">Konfirmasi Penghapusan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menghapus kategori <strong id="namaKategoriSpan"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="hapusKategoriForm" action="" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editkategori" tabindex="-1" aria-labelledby="editKategoriLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editKategoriLabel">Edit Kategori</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editKategoriForm" method="post" action="">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_nama_kategori" class="form-label">Nama
+                            Kategori</label>
+                        <input type="text" class="form-control" id="edit_nama_kategori" name="nama_kategori" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    const faiz_hapusKategoriModal = document.getElementById('hapuskategori');
+    faiz_hapusKategoriModal.addEventListener('show.bs.modal', function (event) {
+        const faiz_button = event.relatedTarget;
+        const faiz_kategoriId = faiz_button.getAttribute('data-bs-id');
+        const faiz_namaKategori = faiz_button.getAttribute('data-bs-nama');
+
+        const faiz_modalform = faiz_hapusKategoriModal.querySelector('#hapusKategoriForm');
+        const faiz_namaKategoriSpan = faiz_hapusKategoriModal.querySelector('#namaKategoriSpan');
+
+        faiz_modalform.action = '/hapus_kategori/' + faiz_kategoriId;
+        faiz_namaKategoriSpan.textContent = faiz_namaKategori;
+    });
+
+    const faiz_editKategoriModal = document.getElementById('editkategori');
+    faiz_editKategoriModal.addEventListener('show.bs.modal', function (event) {
+        const faiz_button = event.relatedTarget;
+        const faiz_kategoriId = faiz_button.getAttribute('data-bs-id');
+        const faiz_namaKategori = faiz_button.getAttribute('data-bs-nama');
+        const faiz_modalform = faiz_editKategoriModal.querySelector('#editKategoriForm');
+        faiz_modalform.action = '/edit_kategori/' + faiz_kategoriId;
+        faiz_modalform.querySelector('#edit_nama_kategori').value = faiz_namaKategori;
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const faiz_dataTable = new simpleDatatables.DataTable(".datatable", {
+            searchable: true,
+            sortable: true,
+            perPage: 10,
+            perPageSelect: [10, 25, 50, 100],
+            labels: {
+                placeholder: "Cari...",
+            }
+        });
+    });
+</script>
+{% endblock %}

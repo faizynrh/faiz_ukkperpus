@@ -1,0 +1,397 @@
+{% extends 'admin/sidebar.html' %} {% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="container">
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+
+
+<!-- MAIN -->
+<main>
+    <div class="head-title">
+        <div class="left">
+            <h1>Daftar Akun</h1>
+            <ul class="breadcrumb">
+                <li>
+                    <a href="#">Dasbor</a>
+                </li>
+                <li><i class="bx bx-chevron-right"></i></li>
+                <li>
+                    <a class="active" href="">Kelola Akun</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="table-data">
+        <div class="order">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inputakun">
+                    + Tambah Akun
+                </button>
+                <form id="searchForm" class="d-flex align-items-center">
+                    <div class="input-group">
+                        <input class="form-control" id="searchInput" type="search" aria-label="Search"
+                            placeholder="Cari Akun..." style="max-width: 200px;">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bx bx-search"></i> Cari
+                        </button>
+                    </div>
+                    <button class="btn btn-secondary ms-2" id="resetSearch" type="button">
+                        <i class="bx bx-reset"></i> Reset
+                    </button>
+                </form>
+            </div>
+            <!-- {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="container">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %} -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <th>Nama Lengkap</th>
+                        <th>Alamat</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    {% for users in users %}
+                    <tr
+                        class="{% if users[7] == 'terverifikasi' %}status-terverifikasi{% elif users[7] == 'ditolak' %}status-ditolak{% elif users[7] == 'pending' %}status-pending{% endif %}">
+                        <td>{{ loop.index }}</td>
+                        <td>{{ users[1] }}</td>
+                        <td>{{ users[3] }}</td>
+                        <td>{{ users[4] }}</td>
+                        <td>{{ users[5] }}</td>
+                        <td>{{ users[6] }}</td>
+                        <td>
+                            {% if users[7] == 'Pending' %}
+                            <span class="badge bg-warning">Pending</span>
+                            {% elif users[7] == 'Terverifikasi' %}
+                            <span class="badge bg-success">Terverifikasi</span>
+                            {% elif users[7] == 'Ditolak' %}
+                            <span class="badge bg-danger">Ditolak</span>
+                            {% endif %}
+                        </td>
+                        <!-- Modal Verifikasi -->
+                        <div class="modal fade" id="verifikasiModal" tabindex="-1"
+                            aria-labelledby="verifikasiModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="verifikasiModalLabel">Konfirmasi Verifikasi</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Apakah Anda yakin ingin memverifikasi akun <strong
+                                            id="verifikasiUsername"></strong>?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Batal</button>
+                                        <form id="verifikasiForm" method="POST" action="">
+                                            <button type="submit" class="btn btn-success">Verifikasi</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="tolakModal" tabindex="-1" aria-labelledby="tolakModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="tolakModalLabel">Konfirmasi Penolakan</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Apakah Anda yakin ingin menolak akun <strong id="tolakUsername"></strong>?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Batal</button>
+                                        <form id="tolakForm" method="POST" action="">
+                                            <button type="submit" class="btn btn-danger">Tolak</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <td>
+                            {% if users[7] == 'Pending' %}
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                data-bs-target="#tolakModal" data-id="{{ users[0] }}" data-username="{{ users[1] }}">
+                                Tolak
+                            </button>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                data-bs-target="#verifikasiModal" data-id="{{ users[0] }}"
+                                data-username="{{ users[1] }}">
+                                Verifikasi
+                            </button>
+                            {% else %}
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                data-bs-target="#editakun" data-id="{{ users[0] }}" data-username="{{ users[1] }}"
+                                data-password="{{ users[2] }}" data-role="{{ users[3] }}" data-email="{{ users[4] }}"
+                                data-nama-lengkap="{{ users[5] }}" data-alamat="{{ users[6] }}">
+                                Ubah
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                data-bs-target="akunakun" data-bs-id="{{ users[0] }}">
+                                Hapus
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<div class="modal fade" id="inputakun" tabindex="-1" aria-labelledby="inputakun" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inputakunLabel">Tambah Akun</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="akunForm" method="post" action="{{ url_for('tambah_akun') }}"
+                onsubmit="return validatePasswords()">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Hak Akses</label>
+                        <select class="form-control" id="role" name="role" required>
+                            <option value="" disabled selected>Pilih Hak Akses</option>
+                            <option value="admin">Admin</option>
+                            <option value="peminjam">Peminjam</option>
+                            <option value="petugas">Petugas</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="alamat" class="form-label">Alamat</label>
+                        <input type="text" class="form-control" id="alamat" name="alamat" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Konfirmasi Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                            required>
+                        <div id="passwordError" class="text-danger mt-2" style="display: none;">Password dan Konfirmasi
+                            Password Anda Tidak Cocok</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editakun" tabindex="-1" aria-labelledby="editakun" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Akun</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editakunForm" method="post" action="">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-control" id="edit_nama_lengkap" name="nama_lengkap" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="edit_username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit_email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Hak Akses</label>
+                        <select class="form-control" id="edit_role" name="role" required>
+                            <option value="" disabled selected>Pilih Hak Akses</option>
+                            <option value="admin">Admin</option>
+                            <option value="peminjam">Peminjam</option>
+                            <option value="petugas">Petugas</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="alamat" class="form-label">Alamat</label>
+                        <input type="text" class="form-control" id="edit_alamat" name="alamat" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="akunakun" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Konfirmasi Penghapusan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menghapus akun ini?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="hapusForm" action="" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="superadmin" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exaModalLabel">Pemberitahuan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Aksi Ini Tidak Dapat Dilakukan Pada Role <strong>superadmin</strong>.
+                <br><br>
+                Untuk Bantuan, Hubungi:
+                <a href="mailto:faizyanuarhern@gmail.com">Pemilik Aplikasi</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const hapusAkunModal = document.getElementById('akunakun');
+    hapusAkunModal.addEventListener('show.bs.modal', function (event) {
+        // Tombol yang memicu modal
+        const button = event.relatedTarget;
+        // Ambil akun_id dari atribut data-bs-id
+        const akunId = button.getAttribute('data-bs-id');
+        // Perbarui form hapus dengan akun_id yang benar
+        const form = document.getElementById('hapusForm');
+        form.action = '/hapus_akun/' + akunId;
+    });
+
+    const editModal = document.getElementById('editakun');
+    editModal.addEventListener('show.bs.modal', function (event) {
+        // Ambil tombol yang mengaktifkan modal
+        const button = event.relatedTarget;
+
+        // Ambil data akun dari atribut data- pada tombol
+        // Ambil data dari atribut data- pada tombol
+        const akunId = button.getAttribute('data-id');
+        const username = button.getAttribute('data-username');
+        const email = button.getAttribute('data-email');
+        const role = button.getAttribute('data-role');
+        const namaLengkap = button.getAttribute('data-nama-lengkap'); // Ambil nama lengkap
+        const alamat = button.getAttribute('data-alamat'); // Ambil alamat
+        const password = button.getAttribute('data-password');
+
+        // Isi form di dalam modal dengan data yang diambil
+        const modalForm = editModal.querySelector('form');
+        modalForm.action = `/edit_akun/${akunId}`;
+        modalForm.querySelector('#edit_username').value = username;
+        modalForm.querySelector('#edit_email').value = email;
+        modalForm.querySelector('#edit_role').value = role;
+        modalForm.querySelector('#edit_nama_lengkap').value = namaLengkap; // Isi nama lengkap
+        modalForm.querySelector('#edit_alamat').value = alamat; // Isi alamat
+        modalForm.querySelector('#edit_password').value = password;
+        modalForm.querySelector('#edit_confirmPassword').value = password;
+    });
+    function validatePasswords() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const passwordError = document.getElementById('passwordError');
+
+        if (password !== confirmPassword) {
+            passwordError.style.display = 'block';
+            return false; // Mencegah form untuk submit jika password tidak sama
+        } else {
+            passwordError.style.display = 'none';
+            return true; // Melanjutkan submit form jika password sama
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchForm = document.getElementById('searchForm');
+        const resetButton = document.getElementById('resetSearch');
+
+        searchForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const query = document.getElementById('searchInput').value;
+            window.location.href = `/kelola_akun?query=${encodeURIComponent(query)}`;
+        });
+
+        resetButton.addEventListener('click', function () {
+            document.getElementById('searchInput').value = '';
+            window.location.href = '/kelola_akun';
+        });
+    });
+
+    // Script untuk modal verifikasi
+    const verifikasiModal = document.getElementById('verifikasiModal');
+    verifikasiModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const akunId = button.getAttribute('data-id');
+        const username = button.getAttribute('data-username');
+
+        const modalForm = document.getElementById('verifikasiForm');
+        modalForm.action = `/verifikasi_akun/${akunId}`;
+
+        document.getElementById('verifikasiUsername').textContent = username;
+    });
+
+    // Script untuk modal tolak
+    const tolakModal = document.getElementById('tolakModal');
+    tolakModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const akunId = button.getAttribute('data-id');
+        const username = button.getAttribute('data-username');
+
+        const modalForm = document.getElementById('tolakForm');
+        modalForm.action = `/tolak_akun/${akunId}`;
+
+        document.getElementById('tolakUsername').textContent = username;
+    });
+</script>
+{% endblock %}

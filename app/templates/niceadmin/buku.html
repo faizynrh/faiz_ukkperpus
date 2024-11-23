@@ -1,0 +1,319 @@
+{% extends 'niceadmin/sidebar.html' %} {% block content %}
+
+<style>
+    .btn-full-width {
+        width: 78px;
+    }
+</style>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Daftar Buku</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                <li class="breadcrumb-item active">Daftar Buku</li>
+            </ol>
+        </nav>
+    </div>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <button type="button" class="btn btn-primary mt-3 mb-3" data-bs-toggle="modal"
+                                data-bs-target="#inputbuku">
+                                + Tambah Buku
+                            </button>
+                            <a href="{{ url_for('admin_laporan_buku') }}" target="_blank"
+                                class="btn btn-secondary ms-auto">
+                                <i class="bi bi-file-earmark-pdf me-2"></i>Cetak Laporan
+                            </a>
+                        </div>
+                        {% with faiz_messages = get_flashed_messages(with_categories=true) %}
+                        {% if faiz_messages %}
+                        {% for faiz_category, faiz_message in faiz_messages %}
+                        <div class="alert alert-{{ faiz_category }} alert-dismissible fade show" role="alert">
+                            {{ faiz_message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Judul</th>
+                                    <th>Penulis</th>
+                                    <th>Penerbit</th>
+                                    <th>Tahun Terbit</th>
+                                    <th>Stok</th>
+                                    <th>Kategori</th>
+                                    <th>Gambar</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kategoriTableBody">
+                                {% for faiz_bukus in faiz_buku %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ faiz_bukus[1] }}</td>
+                                    <td>{{ faiz_bukus[2] }}</td>
+                                    <td>{{ faiz_bukus[3] }}</td>
+                                    <td>{{ faiz_bukus[4] }}</td>
+                                    <td>{{ faiz_bukus[5] }}</td>
+                                    <td>{{ faiz_bukus[8] or 'Tidak ada kategori' }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#modalSampul" data-bs-sampul="{{ faiz_bukus[6] }}">
+                                            Lihat Sampul
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-warning w-75 mb-1" data-bs-toggle="modal"
+                                            data-bs-target="#editBukuModal" data-bs-id="{{ faiz_bukus[0] }}"
+                                            data-bs-judul="{{ faiz_bukus[1] }}" data-bs-penulis="{{ faiz_bukus[2] }}"
+                                            data-bs-penerbit="{{ faiz_bukus[3] }}" data-bs-tahun="{{ faiz_bukus[4] }}"
+                                            data-bs-stok="{{ faiz_bukus[5] }}" data-bs-sampul="{{ faiz_bukus[6] }}"
+                                            data-bs-kategori="{{ faiz_bukus[7] }}">
+                                            Edit
+                                        </button>
+                                        <button type="button" class="btn btn-danger w-75" data-bs-toggle="modal"
+                                            data-bs-target="#hapusbuku" data-bs-id="{{ faiz_bukus[0] }}"
+                                            data-bs-judul="{{ faiz_bukus[1] }}">
+                                            Hapus
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<div class="modal fade" id="inputbuku" tabindex="-1" aria-labelledby="inputbuku" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="InputBukuLabel">Tambah Buku</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="bukuForm" method="post" action="{{ url_for('tambah_buku')}}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label for="judul" class="form-label">Judul</label>
+                        <input type="text" class="form-control" id="judul" name="judul" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="penulis" class="form-label">Penulis</label>
+                        <input type="text" class="form-control" id="penulis" name="penulis" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="penerbit" class="form-label">Penerbit</label>
+                        <input type="text" class="form-control" id="penerbit" name="penerbit" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="tahun_terbit" class="form-label">Tahun Terbit</label>
+                        <input type="number" class="form-control" id="tahun_terbit" name="tahun_terbit" min="1900"
+                            max="2100" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="stok" class="form-label">Stok</label>
+                        <input type="number" class="form-control" id="stok" name="stok" min="1" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="gambar" class="form-label">Sampul Buku</label>
+                        <input type="file" class="form-control" id="gambar" name="gambar" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Pilih Kategori</label>
+                        <div class="row">
+                            {% for kategori in faiz_kategori %}
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="kategori[]"
+                                        value="{{ kategori[0] }}" id="kategori{{ kategori[0] }}">
+                                    <label class="form-check-label" for="kategori{{ kategori[0] }}">
+                                        {{ kategori[1] }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalSampul" tabindex="-1" aria-labelledby="modalSampulLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalSampulLabel">Sampul Buku</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="" id="gambarSampul" class="img-fluid" alt="Sampul Buku">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="hapusbuku" tabindex="-1" aria-labelledby="hapusbukuLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hapusbukuLabel">Konfirmasi Penghapusan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menghapus buku <strong id="namaBukuHapus"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="hapusKategoriForm" action="" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editBukuModal" tabindex="-1" aria-labelledby="editBukuModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editBukuModalLabel">Edit Buku</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editBukuForm" action="" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="id" id="edit_id">
+                    <input type="hidden" name="sampul_lama" id="edit_sampul_lama">
+                    <div class="mb-3">
+                        <label for="edit_judul" class="form-label">Judul Buku</label>
+                        <input type="text" class="form-control" id="edit_judul" name="judul" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_penulis" class="form-label">Penulis</label>
+                        <input type="text" class="form-control" id="edit_penulis" name="penulis" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_penerbit" class="form-label">Penerbit</label>
+                        <input type="text" class="form-control" id="edit_penerbit" name="penerbit" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_tahun_terbit" class="form-label">Tahun Terbit</label>
+                        <input type="text" class="form-control " id="edit_tahun_terbit" name="tahun_terbit" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_stok" class="form-label">Stok</label>
+                        <input type="text" class="form-control " id="edit_stok" name="stok" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_gambar" class="form-label">Sampul Buku</label>
+                        <input type="file" class="form-control" id="edit_gambar" name="gambar" accept="image/*">
+                        <div class="form-text text-muted">
+                            Kosongkan jika tidak ingin mengubah sampul buku
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Pilih Kategori</label>
+                        <div class="row">
+                            {% for faiz_kategoris in faiz_kategori %}
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="kategori[]"
+                                        value="{{ faiz_kategoris[0] }}" id="edit_kategori{{ faiz_kategoris[0] }}">
+                                    <label class="form-check-label" for="edit_kategori{{ faiz_kategoris[0] }}">
+                                        {{ faiz_kategoris[1] }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const faiz_editBukuModal = document.getElementById('editBukuModal');
+    faiz_editBukuModal.addEventListener('show.bs.modal', function (event) {
+        const faiz_button = event.relatedTarget;
+
+        const faiz_bukuId = faiz_button.getAttribute('data-bs-id');
+        const faiz_judul = faiz_button.getAttribute('data-bs-judul');
+        const faiz_penulis = faiz_button.getAttribute('data-bs-penulis');
+        const faiz_penerbit = faiz_button.getAttribute('data-bs-penerbit');
+        const faiz_tahunTerbit = faiz_button.getAttribute('data-bs-tahun');
+        const faiz_stok = faiz_button.getAttribute('data-bs-stok');
+        const faiz_sampulLama = faiz_button.getAttribute('data-bs-sampul');
+        const faiz_kategoriTerpilih = faiz_button.getAttribute('data-bs-kategori').split(',');
+
+        const faiz_modalForm = faiz_editBukuModal.querySelector('#editBukuForm');
+        faiz_modalForm.action = `/edit_buku/${faiz_bukuId}`;
+
+        faiz_modalForm.querySelector('#edit_id').value = faiz_bukuId;
+        faiz_modalForm.querySelector('#edit_judul').value = faiz_judul;
+        faiz_modalForm.querySelector('#edit_penulis').value = faiz_penulis;
+        faiz_modalForm.querySelector('#edit_penerbit').value = faiz_penerbit;
+        faiz_modalForm.querySelector('#edit_tahun_terbit').value = faiz_tahunTerbit;
+        faiz_modalForm.querySelector('#edit_stok').value = faiz_stok;
+        faiz_modalForm.querySelector('#edit_sampul_lama').value = faiz_sampulLama;
+
+        const faiz_checkboxKategori = faiz_modalForm.querySelectorAll('input[name="kategori[]"]');
+        faiz_checkboxKategori.forEach(faiz_checkbox => {
+            faiz_checkbox.checked = faiz_kategoriTerpilih.includes(faiz_checkbox.value);
+        });
+    });
+
+    const faiz_modalSampul = document.getElementById('modalSampul')
+    faiz_modalSampul.addEventListener('show.bs.modal', event => {
+        const faiz_button = event.relatedTarget
+
+        const faiz_sampulPath = faiz_button.getAttribute('data-bs-sampul')
+
+        const faiz_gambarSampul = faiz_modalSampul.querySelector('#gambarSampul')
+
+        faiz_gambarSampul.src = '/' + 'static' + '/' + faiz_sampulPath
+    })
+
+    const faiz_hapusBukuModal = document.getElementById('hapusbuku');
+    faiz_hapusBukuModal.addEventListener('show.bs.modal', function (event) {
+        const faiz_button = event.relatedTarget;
+        const faiz_bukuId = faiz_button.getAttribute('data-bs-id');
+        const faiz_bukuJudul = faiz_button.getAttribute('data-bs-judul');
+
+        const faiz_modalForm = faiz_hapusBukuModal.querySelector('#hapusKategoriForm');
+        faiz_modalForm.action = '/hapus_buku/' + faiz_bukuId;
+
+        const faiz_namaBukuElement = faiz_hapusBukuModal.querySelector('#namaBukuHapus');
+        faiz_namaBukuElement.textContent = faiz_bukuJudul;
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const faiz_dataTable = new simpleDatatables.DataTable(".datatable", {
+            searchable: true,
+            sortable: true,
+            perPage: 10,
+            perPageSelect: [10, 25, 50, 100],
+            labels: {
+                placeholder: "Cari...",
+            }
+        });
+    });
+</script>
+{% endblock %}

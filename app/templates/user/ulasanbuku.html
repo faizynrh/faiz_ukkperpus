@@ -1,0 +1,217 @@
+{% extends 'user/navbar.html' %} {% block content %}
+<main id="main" class="main container-fluid px-4">
+    <div class="pagetitle m-4">
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('home_buku_saya') }}">Beranda</a>
+                </li>
+                <li class="breadcrumb-item active">{{ buku[1] }}</li>
+            </ol>
+        </nav>
+    </div>
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <img src="{{ url_for('static', filename=buku[6]) }}" alt="{{ buku[1] }}" class="img-fluid mb-3"
+                            style="max-height: 300px; object-fit: cover" />
+                        <h4>{{ buku[1] }}</h4>
+                        <p class="text-muted">{{ buku[2] }}</p>
+
+                        <div class="rating-container mb-3">
+                            {% if jumlah_ulasan == 0 and rata_rating == 0 %}
+                            <div class="text-center text-muted">
+                                <p>Belum ada ulasan untuk buku ini.</p>
+                            </div>
+                            {% else %}
+                            <div class="d-flex justify-content-center align-items-center">
+                                <i class="bi bi-star-fill text-warning" style="font-size: 1.5rem"></i>
+                                <span class="ms-2">{{ "%.1f"|format(rata_rating) }} / 5</span>
+                            </div>
+                            <small class="text-muted">{{ jumlah_ulasan }} Ulasan</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="book-details mt-3">
+                            <p class="mb-1"><strong>Penulis:</strong> {{ buku[3] }}</p>
+                            <p class="mb-1"><strong>Penerbit:</strong> {{ buku[4] }}</p>
+                        </div>
+
+                        {% if session.get('faiz_UserID') %}
+                        <div class="mt-4">
+                            {% if user_ulasan %}
+                            <button class="btn btn-warning btn-lg" data-bs-toggle="modal"
+                                data-bs-target="#editUlasanModal">
+                                <i class="bi bi-pencil me-2"></i>Edit Ulasan
+                            </button>
+                            <form action="{{ url_for('hapus_ulasan') }}" method="POST" class="d-inline">
+                                <input type="hidden" name="buku_id" value="{{ buku[0] }}">
+                                <button type="submit" class="btn btn-danger btn-lg">
+                                    <i class="bi bi-trash me-2"></i>Hapus Ulasan
+                                </button>
+                            </form>
+                            {% else %}
+                            <button class="btn btn-primary btn-lg" data-bs-toggle="modal"
+                                data-bs-target="#tambahUlasanModal">
+                                <i class="bi bi-plus-circle me-2"></i>Tambah Ulasan
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Daftar Ulasan</h5>
+                        {% if ulasan %} {% for review in ulasan %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <p class="card-subtitle text-muted">{{ review[6] }}</p>
+                                    <div class="rating">
+                                        {% for i in range(5) %} {% if i < review[4] %} <i
+                                            class="bi bi-star-fill text-warning" style="font-size: 0.8rem">
+                                            </i>
+                                            {% else %}
+                                            <i class="bi bi-star text-warning" style="font-size: 0.8rem"></i>
+                                            {% endif %} {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="card-text">{{ review[3] }}</p>
+                                <p class="text-muted">{{ review[5] }}</p>
+                            </div>
+                        </div>
+                        {% endfor %} {% else %}
+                        <div class="alert alert-info text-center">
+                            Belum ada ulasan untuk buku ini
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div class="modal fade" id="editUlasanModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title">Edit Ulasan Anda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('edit_ulasan') }}" method="POST">
+                <input type="hidden" name="buku_id" value="{{ buku[0] }}">
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label class="form-label">Pilih Rating</label>
+                        <div class="rating-input d-flex justify-content-center">
+                            {% for i in range(1, 6) %} <input type="radio" name="rating" id="rating{{ i }}"
+                                value="{{ i }}" class="d-none" {% if i==user_ulasan[4] %} checked {% endif %} required>
+                            <label for="rating{{ i }}" class="star-label mx-1" style="cursor: pointer">
+                                <i class="bi bi-star-fill text-muted" style="font-size: 1.8rem"></i>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ulasan" class="form-label">Ulasan Anda</label>
+                        <textarea class="form-control" id="ulasan" name="ulasan" rows="4" required
+                            placeholder="Bagikan pengalaman Anda tentang buku ini...">{{ user_ulasan[3] }}
+                        </textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary">Simpan Ulasan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tambahUlasanModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title">Tulis Ulasan Anda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('tambah_ulasan', buku_id=buku[0]) }}" method="POST">
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label class="form-label">Pilih Rating</label>
+                        <div class="rating-input d-flex justify-content-center">
+                            {% for i in range(1, 6) %}
+                            <input type="radio" name="rating" id="tambahRating{{ i }}" value="{{ i }}" class="d-none"
+                                required />
+                            <label for="tambahRating{{ i }}" class="star-label mx-1" style="cursor: pointer">
+                                <i class="bi bi-star-fill text-muted" style="font-size: 1.8rem"></i>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ulasan" class="form-label">Ulasan Anda</label>
+                        <textarea class="form-control" id="ulasan" name="ulasan" rows="4" required
+                            placeholder="Bagikan pengalaman Anda tentang buku ini..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Kirim Ulasan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function setupRatingInput(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+
+            const ratingInputs = modal.querySelectorAll(".rating-input input");
+            const ratingLabels = modal.querySelectorAll(".rating-input label i");
+
+            const existingRating = modal.querySelector("input[checked]");
+            if (existingRating) {
+                const index = Array.from(ratingInputs).indexOf(existingRating);
+                updateStarDisplay(ratingLabels, index);
+            }
+
+            ratingInputs.forEach((input, index) => {
+                input.addEventListener("change", function () {
+                    updateStarDisplay(ratingLabels, index);
+                });
+            });
+        }
+
+        function updateStarDisplay(ratingLabels, index) {
+            ratingLabels.forEach((label, i) => {
+                if (i <= index) {
+                    label.classList.remove("text-muted");
+                    label.classList.add("text-warning");
+                } else {
+                    label.classList.remove("text-warning");
+                    label.classList.add("text-muted");
+                }
+            });
+        }
+
+        setupRatingInput("tambahUlasanModal");
+        setupRatingInput("editUlasanModal");
+    });
+</script>
+
+
+{% endblock %}

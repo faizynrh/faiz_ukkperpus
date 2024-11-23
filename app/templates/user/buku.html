@@ -1,0 +1,270 @@
+{% extends 'user/navbar.html' %}
+{% block content %}
+<style>
+    body {
+        padding-top: 56px;
+        background-color: #f4f4f4;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .header {
+        background: #6a7bff;
+        color: white;
+        padding: 40px 0;
+        text-align: center;
+        position: relative;
+    }
+
+    .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+
+    .header p {
+        font-size: 1.2rem;
+    }
+
+    .card img {
+        height: 250px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    .card {
+        height: 100%;
+        width: 250px;
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+    .search-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .search-container input {
+        width: 300px;
+        border-radius: 20px;
+        padding: 10px;
+        border: 1px solid #ced4da;
+    }
+
+    .search-container button {
+        border-radius: 20px;
+        background-color: #007bff;
+        color: white;
+    }
+
+    .book-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+</style>
+
+
+<div class="header">
+    <h1>Daftar Buku</h1>
+    <p>Temukan buku favorit Anda di sini!</p>
+</div>
+
+<div class="container mt-5">
+    <div class="search-container mb-4">
+        <input type="text" class="form-control" id="searchInput" placeholder="Cari buku...">
+        <button class="btn btn-primary ms-2">Cari</button>
+    </div>
+    {% with faiz_messages = get_flashed_messages(with_categories=true) %}
+    {% if faiz_messages %}
+    {% for faiz_category, faiz_message in faiz_messages %}
+    <div class="alert alert-{{ faiz_category }} alert-dismissible fade show" role="alert">
+        {{ faiz_message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="book-list" id="bookList">
+        {% for faiz_bukus in faiz_buku %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm border-0 position-relative">
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename=faiz_bukus[6])}}" class="card-img-top book-cover"
+                        alt="{{ faiz_bukus[1] }}" style="height: 300px; object-fit: cover;">
+
+                    <div class="category-badges position-absolute top-0 end-0 p-2">
+                        {% for kategori in faiz_bukus[8].split(', ') %}
+                        <span class="badge bg-primary me-1 mb-1">{{ kategori }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="card-body d-flex flex-column">
+                    <div class="mb-3">
+                        <h5 class="card-title fw-bold mb-1">{{ faiz_bukus[1] }}</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-pen-nib me-1"></i>{{ faiz_bukus[2] }}
+                        </p>
+
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            {% set rating = faiz_bukus[9]|float %}
+                            {% set full_stars = rating|int %}
+                            {% set half_star = 1 if rating - full_stars >= 0.5 else 0 %}
+                            {% set empty_stars = 5 - full_stars - half_star %}
+
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="rating-container w-100">
+                                    <div class="rating-stars text-warning">
+                                        {% for _ in range(full_stars) %}
+                                        <i class="fas fa-star"></i>
+                                        {% endfor %}
+                                        {% if half_star %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                        {% endif %}
+                                        {% for _ in range(empty_stars) %}
+                                        <i class="far fa-star"></i>
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted d-block mt-1">
+                                        ({{ rating }}/5 - {{ faiz_bukus[10] }} ulasan)
+                                    </small>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- {% if faiz_bukus[10] == 0 %}
+                        <div class="alert alert-warning py-1 px-2 small mb-2" role="alert">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Belum ada ulasan
+                        </div>
+                        {% endif %} -->
+                    </div>
+
+                    <div class="mt-auto">
+                        <div class="d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <a href="{{ url_for('user_peminjaman', buku_id=faiz_bukus[0]) }}"
+                                    class="btn btn-primary booking-btn flex-grow-1 me-2" data-bs-toggle="modal"
+                                    data-bs-target="#konfirmasiBookingModal" data-id="{{ faiz_bukus[0] }}"
+                                    data-judul="{{ faiz_bukus[1] }}" data-penulis="{{ faiz_bukus[2] }}"
+                                    data-penerbit="{{ faiz_bukus[3] }}">
+                                    <i class="fas fa-book-open me-2"></i>Booking
+                                </a>
+                                {% if is_logged_in %}
+                                {% if faiz_bukus[11] %}
+                                <form action="{{ url_for('hapus_koleksi_pribadi', buku_id=faiz_bukus[0]) }}"
+                                    method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-warning" data-bs-toggle="tooltip"
+                                        title="Hapus dari Koleksi Pribadi">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form action="{{ url_for('tambah_koleksi_pribadi', buku_id=faiz_bukus[0]) }}"
+                                    method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-outline-warning" data-bs-toggle="tooltip"
+                                        title="Tambah ke Koleksi Pribadi">
+                                        <i class="far fa-star"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% else %}
+                                <a href="{{ url_for('login') }}" class="btn btn-outline-warning"
+                                    data-bs-toggle="tooltip" title="Login untuk menambah ke Koleksi Pribadi">
+                                    <i class="far fa-star"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                            <a href="{{ url_for('user_ulasanbuku', buku_id=faiz_bukus[0]) }}"
+                                class="btn btn-outline-primary w-100">
+                                <i class="fas fa-comment-dots me-1"></i> Lihat Ulasan
+                                <span class="badge bg-primary text-white ms-1">{{ faiz_bukus[10] }}</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar-alt me-1"></i>Terbit {{ faiz_bukus[4] }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="konfirmasiBookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Konfirmasi Booking Buku</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <th>Judul Buku</th>
+                        <td id="detailJudul"></td>
+                    </tr>
+                    <tr>
+                        <th>Penulis</th>
+                        <td id="detailPenulis"></td>
+                    </tr>
+                    <tr>
+                        <th>Penerbit</th>
+                        <td id="detailPenerbit"></td>
+                    </tr>
+                    <tr>
+                        <th>Tanggal Peminjaman</th>
+                        <td id="detailTanggalPeminjaman"></td>
+                    </tr>
+                    <tr>
+                        <th>Tanggal Pengembalian</th>
+                        <td id="detailTanggalPengembalian"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="bookingForm" action="{{ url_for('user_peminjaman') }}" method="POST">
+                    <input type="hidden" id="bukuidInput" name="bukuid" value="">
+                    <button type="submit" class="btn btn-primary" id="konfirmasiBookingBtn">Konfirmasi
+                        Booking</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const bookingModal = document.getElementById('konfirmasiBookingModal');
+
+        bookingModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const bukuId = button.getAttribute('data-id');
+            const judul = button.getAttribute('data-judul');
+            const penulis = button.getAttribute('data-penulis');
+            const penerbit = button.getAttribute('data-penerbit');
+
+            document.getElementById('detailJudul').textContent = judul;
+            document.getElementById('detailPenulis').textContent = penulis;
+            document.getElementById('detailPenerbit').textContent = penerbit;
+
+            const today = new Date();
+            const returnDate = new Date(today);
+            returnDate.setDate(today.getDate() + 7);
+
+            document.getElementById('detailTanggalPeminjaman').textContent = today.toISOString().split('T')[0];
+            document.getElementById('detailTanggalPengembalian').textContent = returnDate.toISOString().split('T')[0];
+
+            document.getElementById('bukuidInput').value = bukuId;
+        });
+    });
+</script>
+{% endblock %}

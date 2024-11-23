@@ -1,0 +1,75 @@
+{% extends 'admin/sidebar.html' %}
+{% block content %}
+<main>
+    <div class="head-title">
+        <div class="left">
+            <h1>Dasbor</h1>
+            <ul class="breadcrumb">
+                <li>
+                    <a href="#">Dasbor</a>
+                </li>
+                <li><i class="bx bx-chevron-right"></i></li>
+                <li>
+                    <a class="active" href="">Beranda</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <ul class="box-info">
+        <li onclick="" style="cursor: pointer;">
+            <i class="bx bxs-box"></i>
+            <span class="text">
+                <h3>{{ stok }} PCs</h3>
+                <p>Stok Barang</p>
+            </span>
+        </li>
+        <li onclick="" style="cursor: pointer;">
+            <i class="bx bxs-dollar-circle"></i>
+            <span class="text">
+                <h3>Rp. {{ omset }}</h3>
+                <p>Jumlah Penjualan</p>
+            </span>
+        </li>
+        <li onclick="" style="cursor: pointer;">
+            <i class="bx bxs-group"></i>
+            <span class="text">
+                <h3>{{ akun }}</h3>
+                <p>Akun Tersedia</p>
+            </span>
+        </li>
+    </ul>
+    <a class="icon" href="#" data-bs-toggle="dropdown">Saring<i class="bx bx-caret-down"></i></a>
+    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+        <li class="dropdown-header text-start">
+            <h6>Saring</h6>
+        </li>
+        <li><a class="dropdown-item" href="#" onclick="updateChart('day')">Hari ini</a></li>
+        <li><a class="dropdown-item" href="#" onclick="updateChart('week')">Minggu ini</a></li>
+        <li><a class="dropdown-item" href="#" onclick="updateChart('month')">Bulan ini</a></li>
+        <li><a class="dropdown-item" href="#" onclick="updateChart('year')">Tahun ini</a></li>
+    </ul>
+    <canvas id="salesChart" width="20" height="10"></canvas>
+    <div class="table-data">
+        <div class="order">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama Pengguna</th>
+                        <th>Tabel</th>
+                        <th>Aksi</th>
+                        <th>Waktu</th>
+                        <th><a href="" style="text-decoration: none">Lihat Semua</a></th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+
+
+{% endblock %}

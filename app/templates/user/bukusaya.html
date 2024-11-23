@@ -1,0 +1,446 @@
+{% extends 'user/navbar.html' %}
+{% block content %}
+<style>
+    body {
+        background-color: #f4f4f4;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .my-books-header {
+        background-color: #4754F1;
+        color: white;
+        padding: 30px 0;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .book-section {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+
+    .book-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #f1f1f1;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    .book-horizontal-scroll {
+        display: flex;
+        overflow-x: auto;
+        gap: 15px;
+        padding-bottom: 15px;
+    }
+
+    .book-card {
+        min-width: 200px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .book-card:hover {
+        transform: scale(1.05);
+    }
+
+    .book-card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .book-card-body {
+        padding: 10px;
+    }
+
+    .view-all-btn {
+        background-color: #4754F1;
+        color: white;
+    }
+
+    .view-all-btn:hover {
+        background-color: #3a45c2;
+        color: white;
+    }
+</style>
+
+<div class="container">
+    <div class="my-books-header">
+        <h1>Buku Saya</h1>
+        <p>Kelola dan lacak koleksi buku Anda</p>
+    </div>
+    {% with faiz_messages = get_flashed_messages(with_categories=true) %}
+    {% if faiz_messages %}
+    {% for faiz_category, faiz_message in faiz_messages %}
+    <div class="alert alert-{{ faiz_category }} alert-dismissible fade show" role="alert">
+        {{ faiz_message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <!-- Buku Pending -->
+    <div class="book-section mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="section-title mb-0">
+                <i class="fas fa-pause-circle me-2 text-warning"></i>Buku Pending
+            </h3>
+            {% if faiz_bukupending|length > 0 %}
+            <a href="#" class="btn btn-outline-secondary btn-sm">Lihat Semua</a>
+            {% endif %}
+        </div>
+
+        {% if faiz_bukupending|length == 0 %}
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            Tidak ada buku pending saat ini
+        </div>
+        {% else %}
+        <div class="row g-3">
+            {% for buku in faiz_bukupending %}
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename=buku[-1].replace('static/', '')) }}"
+                            class="card-img-top" alt="{{ buku[7] }}" style="height: 250px; object-fit: cover;">
+                        <span class="badge bg-warning position-absolute top-0 end-0 m-2">
+                            {{ buku[5] }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title mb-1 text-dark fw-bold">{{ buku[7] }}</h5>
+                        <p class="text-muted small mb-2 d-flex align-items-center">
+                            <i class="fas fa-book-open me-2 text-primary"></i>
+                            {{ buku[8] }}
+                        </p>
+                        <p class="text-muted small d-flex align-items-center">
+                            <i class="fas fa-user-edit me-2 text-success"></i>
+                            {{ buku[9] }}
+                        </p>
+                        <div class="alert alert-warning d-flex align-items-center p-2 mt-2" role="alert">
+                            <i class="fas fa-clock me-2"></i>
+                            <span class="small">Silahkan Ambil Buku Sebelum Jam 16.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Buku Sedang Dipinjam -->
+    <div class="book-section mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="section-title mb-0">
+                <i class="fas fa-book-reader me-2 text-primary"></i>Buku Sedang Dipinjam
+            </h3>
+            {% if faiz_bukudipinjam|length > 0 %}
+            <a href="#" class="btn btn-outline-secondary btn-sm">Lihat Semua</a>
+            {% endif %}
+        </div>
+
+        {% if faiz_bukudipinjam|length == 0 %}
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            Tidak ada buku yang sedang dipinjam
+        </div>
+        {% else %}
+        <div class="row g-3">
+            {% for buku in faiz_bukudipinjam %}
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename=buku[-1].replace('static/', '')) }}"
+                            class="card-img-top" alt="{{ buku[7] }}" style="height: 250px; object-fit: cover;">
+                        <span class="badge bg-primary position-absolute top-0 end-0 m-2">
+                            Dipinjam
+                        </span>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title mb-1">{{ buku[7] }}</h5>
+                        <p class="text-muted small mb-2">{{ buku[8] }}</p>
+                        <p class="text-muted small">{{ buku[9] }}</p>
+                        <div class="mt-auto card-footer bg-light">
+                            <div class="mt-auto">
+                                {% if today > buku[4] %}
+                                <div
+                                    class="d-flex justify-content-between align-items-center bg-soft-danger rounded p-2">
+                                    <div class="d-flex flex-column align-items-start text-danger">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <span class="small">
+                                                Telat
+                                                {% set hari_telat = (today - buku[4]).days %}
+                                                ({{ hari_telat }} Hari)
+                                            </span>
+                                        </div>
+                                        <span class="badge bg-danger mt-1">
+                                            {{ buku[4].strftime('%d %B %Y') }}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center text-muted small">
+                                        <i class="far fa-calendar-alt me-2"></i>
+                                        <span>Batas Akhir</span>
+                                    </div>
+                                    <span class="badge bg-soft-primary text-primary">
+                                        {{ buku[4].strftime('%d %B %Y') }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Koleksi Pribadi -->
+    <div class="book-section mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="section-title mb-0">
+                <i class="fas fa-star me-2 text-warning"></i>Koleksi Pribadi
+            </h3>
+            {% if faiz_koleksibuku|length > 0 %}
+            <a href="#" class="btn btn-outline-secondary btn-sm">Lihat Semua</a>
+            {% endif %}
+        </div>
+
+        {% if faiz_koleksibuku|length == 0 %}
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            Koleksi pribadi Anda masih kosong
+        </div>
+        {% else %}
+        <div class="row g-3">
+            {% for buku in faiz_koleksibuku %}
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename=buku[7].replace('static/', '')) }}" class="card-img-top"
+                            alt="{{ buku[4] }}" style="height: 250px; object-fit: cover;">
+                        <span class="badge bg-success position-absolute top-0 end-0 m-2">
+                            Koleksi
+                        </span>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-3">
+                            <h5 class="card-title fw-bold mb-1">{{ buku[4] }}</h5>
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-pen-nib me-1"></i>{{ buku[5] }}
+                            </p>
+
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                {% set rating = buku[6]|float %}
+                                {% set full_stars = rating|int %}
+                                {% set half_star = 1 if rating - full_stars >= 0.5 else 0 %}
+                                {% set empty_stars = 5 - full_stars - half_star %}
+
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="rating-container w-100">
+                                        <div class="rating-stars text-warning">
+                                            {% for _ in range(full_stars) %}
+                                            <i class="fas fa-star"></i>
+                                            {% endfor %}
+                                            {% if half_star %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                            {% endif %}
+                                            {% for _ in range(empty_stars) %}
+                                            <i class="far fa-star"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <small class="text-muted d-block mt-1">
+                                            ({{ rating }}/5 - {{ buku[-1] }} ulasan)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if buku[-1] == 0 %}
+                            <div class="alert alert-warning py-1 px-2 small mb-2" role="alert">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Belum ada ulasan
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-auto">
+                            <div class="d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <a href="{{ url_for('user_peminjaman', buku_id=buku[0]) }}"
+                                        class="btn btn-primary booking-btn flex-grow-1 me-2" data-bs-toggle="modal"
+                                        data-bs-target="#konfirmasiBookingModal" data-id="{{ buku[0] }}"
+                                        data-judul="{{ buku[-6] }}" data-penulis="{{ buku[-5] }}"
+                                        data-penerbit="{{ buku[-4] }}">
+                                        <i class="fas fa-book-open me-2"></i>Booking
+                                    </a>
+                                    <div class="modal fade" id="konfirmasiBookingModal" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Konfirmasi Booking Buku</h5>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table class="table">
+                                                        <tr>
+                                                            <th>Judul Buku</th>
+                                                            <td id="detailJudul"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Penulis</th>
+                                                            <td id="detailPenulis"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Penerbit</th>
+                                                            <td id="detailPenerbit"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Tanggal Peminjaman</th>
+                                                            <td id="detailTanggalPeminjaman"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Tanggal Pengembalian</th>
+                                                            <td id="detailTanggalPengembalian"></td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Batal</button>
+                                                    <form id="bookingForm" action="{{ url_for('user_peminjaman') }}"
+                                                        method="POST">
+                                                        <input type="hidden" id="bukuidInput" name="bukuid" value="">
+                                                        <button type="submit" class="btn btn-primary"
+                                                            id="konfirmasiBookingBtn">Konfirmasi
+                                                            Booking</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {% if is_logged_in %}
+                                    {% if buku[0] %}
+                                    <form action="{{ url_for('hapus_koleksi_pribadi', buku_id=buku[2]) }}" method="POST"
+                                        style="display:inline;">
+                                        <button type="submit" class="btn btn-warning" data-bs-toggle="tooltip"
+                                            title="Hapus dari Koleksi Pribadi">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% else %}
+                                    <a href="{{ url_for('login') }}" class="btn btn-outline-warning"
+                                        data-bs-toggle="tooltip" title="Login untuk menambah ke Koleksi Pribadi">
+                                        <i class="far fa-star"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+
+                                <a href="{{ url_for('user_ulasanbuku', buku_id=buku[2]) }}"
+                                    class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-comment-dots me-1"></i> Lihat Ulasan
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Buku Selesai Dipinjam -->
+    <div class="book-section mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="section-title mb-0">
+                <i class="fas fa-check-circle me-2 text-success"></i>Buku Selesai Dipinjam
+            </h3>
+            {% if faiz_bukuselesai|length > 0 %}
+            <a href="#" class="btn btn-outline-secondary btn-sm">Lihat Semua</a>
+            {% endif %}
+        </div>
+
+        {% if faiz_bukuselesai|length == 0 %}
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            Belum ada buku yang selesai dipinjam
+        </div>
+        {% else %}
+        <div class="row g-3">
+            {% for buku in faiz_bukuselesai %}
+            <div class="col-md-3  col-sm-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename=buku[-1]) }}" class="card-img-top" alt="{{ buku[7] }}"
+                            style="height: 250px; object-fit: cover;">
+                        <span class="badge bg-secondary position-absolute top-0 end-0 m-2">
+                            Selesai
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title mb-1">{{ buku[7] }}</h5>
+                        <p class="text-muted small mb-2">{{ buku[8] }}</p>
+                        <p class="text-muted small">{{ buku[9] }}</p>
+                        <div class="mt-2 d-grid">
+                            <a href="{{ url_for('user_ulasanbuku', buku_id=buku[2]) }}"
+                                class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-comment-dots me-1"></i> Lihat Ulasan
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const bookingModal = document.getElementById('konfirmasiBookingModal');
+
+        bookingModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const bukuId = button.getAttribute('data-id');
+            const judul = button.getAttribute('data-judul');
+            const penulis = button.getAttribute('data-penulis');
+            const penerbit = button.getAttribute('data-penerbit');
+
+            document.getElementById('detailJudul').textContent = judul;
+            document.getElementById('detailPenulis').textContent = penulis;
+            document.getElementById('detailPenerbit').textContent = penerbit;
+
+            const today = new Date();
+            const returnDate = new Date(today);
+            returnDate.setDate(today.getDate() + 7);
+
+            document.getElementById('detailTanggalPeminjaman').textContent = today.toISOString().split('T')[0];
+            document.getElementById('detailTanggalPengembalian').textContent = returnDate.toISOString().split('T')[0];
+
+            document.getElementById('bukuidInput').value = bukuId;
+        });
+    });
+    document.querySelectorAll('.book-horizontal-scroll').forEach(scroll => {
+        scroll.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            scroll.scrollLeft += e.deltaX;
+        });
+    });
+</script>
+{% endblock %}
